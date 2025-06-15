@@ -3,9 +3,13 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ActivityIndicator, View } from 'react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { SessionProvider, useSession } from '@/lib/context/SessionContext';
+import { apiClient } from '@/config/api';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -19,6 +23,32 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
+
+function AppInitializer({ children }: { children: React.ReactNode }) {
+  const { setSessionId, setIsLoading } = useSession();
+
+  useEffect(() => {
+    const initializeSession = async () => {
+      try {
+        const { data } = await apiClient.get('/session/init');
+        if (data.sessionId) {
+          setSessionId(data.sessionId);
+        }
+      } catch (error) {
+        console.error("Failed to initialize session:", error);
+        // Handle session init failure
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeSession();
+  }, [setSessionId, setIsLoading]);
+
+  return <>{children}</>;
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -41,11 +71,28 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider>
+        <AppInitializer>
+          <RootLayoutNav />
+        </AppInitializer>
+      </SessionProvider>
+    </QueryClientProvider>
+  );
 }
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { isLoading } = useSession();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
