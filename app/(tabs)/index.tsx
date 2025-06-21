@@ -1,22 +1,23 @@
 /**
- * Chat Screen Component for Ask Rezzy Client
+ * Medical Education Chat Screen Component for Ask Rezzy Client
  * 
- * This is the main chat interface where users interact with the AI assistant.
- * It provides a complete chat experience with message history, real-time responses,
- * file upload capabilities, and responsive UI design. The screen handles the entire
- * conversation flow from user input to AI responses with proper error handling.
+ * This is the main medical education interface where users interact with the AI
+ * medical education assistant. It provides a complete chat experience with 
+ * structured responses including MCQs, flashcards, medical FAQs, and educational
+ * content with proper error handling and responsive UI design.
  * 
  * Key Features:
- * - Real-time chat with WebSocket streaming responses
+ * - Real-time medical education chat with WebSocket streaming
+ * - Structured JSON response handling (MCQs, flashcards, FAQs)
  * - Auto-scrolling message list for optimal UX
- * - Integrated file upload functionality
+ * - Interactive educational components with suggestion buttons
  * - Typing indicators during AI response generation
  * - Error handling and user feedback
  * - Cross-platform keyboard handling
- * - Responsive design for different screen sizes
+ * - Professional medical education theme
  * 
- * The component uses a dual-provider pattern to ensure proper context isolation
- * and prevent context conflicts while maintaining access to chat functionality.
+ * The component uses the medical education context to ensure proper functionality
+ * and provides interactive educational experiences beyond simple text chat.
  */
 
 import React, { useRef, useEffect } from 'react';
@@ -28,20 +29,16 @@ import TypingIndicator from '@/components/chat/TypingIndicator';
 import ChatInput from '@/components/chat/ChatInput';
 
 /**
- * Chat Screen Content Component
+ * Medical Education Chat Screen Content Component
  * 
- * This component contains the actual chat interface implementation. It's separated
- * from the main ChatScreen component to ensure proper context usage and avoid
- * hook-related issues with the ChatProvider wrapper.
- * 
- * The component manages the chat UI state, handles auto-scrolling, and coordinates
- * between different chat-related components to provide a seamless user experience.
- * 
- * @returns {JSX.Element} Complete chat interface with messages, input, and indicators
+ * This component contains the actual medical education chat interface implementation.
+ * It's separated from the main ChatScreen component to ensure proper context usage
+ * and handles all the medical education specific functionality including interactive
+ * components for MCQs, flashcards, and educational suggestions.
  */
 function ChatScreenContent() {
-  // Get chat functionality from context
-  const { messages, input, isLoading, error, handleInputChange, handleSubmit } = useChat();
+  // Get medical education chat functionality from context
+  const { messages, input, isLoading, error, handleInputChange, handleSubmit, sendMessage } = useChat();
   
   // Reference to FlatList for programmatic scrolling control
   const flatListRef = useRef<FlatList>(null);
@@ -50,11 +47,8 @@ function ChatScreenContent() {
    * Auto-scroll Effect for New Messages
    * 
    * Automatically scrolls the message list to the bottom when new messages
-   * are added. This ensures users always see the latest messages without
-   * manual scrolling, providing a smooth chat experience.
-   * 
-   * The effect uses a small delay to ensure the message has been rendered
-   * before attempting to scroll, preventing scroll position issues.
+   * are added. This ensures users always see the latest medical education
+   * content without manual scrolling, providing a smooth learning experience.
    */
   useEffect(() => {
     if (messages.length > 0) {
@@ -63,16 +57,14 @@ function ChatScreenContent() {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
     }
-  }, [messages]); // Trigger when messages array changes
+  }, [messages]);
 
   /**
    * Error Display Component
    * 
    * Renders error messages when WebSocket connection issues or other
-   * chat-related errors occur. Provides user-friendly error feedback
-   * with appropriate styling and positioning.
-   * 
-   * @returns {JSX.Element | null} Error message component or null if no error
+   * medical education chat-related errors occur. Provides user-friendly
+   * error feedback with appropriate medical theme styling.
    */
   const renderError = () => {
     if (error) {
@@ -91,11 +83,16 @@ function ChatScreenContent() {
       style={styles.container}
       keyboardVerticalOffset={90} // Offset for tab bar height
     >
-      {/* Message List - Displays all chat messages */}
+      {/* Medical Education Message List */}
       <FlatList
         ref={flatListRef}
         data={messages}
-        renderItem={({ item }) => <MessageBubble message={item} />}
+        renderItem={({ item }) => (
+          <MessageBubble 
+            message={item} 
+            onSendMessage={sendMessage} // Pass sendMessage for interactive components
+          />
+        )}
         keyExtractor={(item) => item.id}
         style={styles.messageList}
         showsVerticalScrollIndicator={false}
@@ -103,13 +100,13 @@ function ChatScreenContent() {
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
       
-      {/* Error Display - Shows connection or chat errors */}
+      {/* Error Display - Shows connection or medical education errors */}
       {renderError()}
       
-      {/* Typing Indicator - Shows when AI is generating response */}
+      {/* Typing Indicator - Shows when medical AI is generating response */}
       {isLoading && <TypingIndicator />}
       
-      {/* Chat Input - Text input and file upload interface */}
+      {/* Medical Education Chat Input */}
       <ChatInput
         input={input}
         onInputChange={handleInputChange}
@@ -121,17 +118,12 @@ function ChatScreenContent() {
 }
 
 /**
- * Main Chat Screen Component
+ * Main Medical Education Chat Screen Component
  * 
- * The primary chat screen component that wraps the chat content with the
- * necessary ChatProvider. This ensures that the chat functionality is
- * properly initialized and available to all child components.
- * 
- * The dual-provider pattern (one in tab layout, one here) ensures proper
- * context isolation and prevents potential context conflicts while maintaining
- * access to WebSocket functionality throughout the chat interface.
- * 
- * @returns {JSX.Element} Chat screen with provider wrapper
+ * The primary medical education chat screen component that wraps the chat
+ * content with the necessary ChatProvider. This ensures that the medical
+ * education functionality is properly initialized and available to all
+ * child components including interactive MCQs and flashcards.
  */
 export default function ChatScreen() {
   return (
@@ -142,37 +134,40 @@ export default function ChatScreen() {
 }
 
 /**
- * StyleSheet for Chat Screen Components
+ * StyleSheet for Medical Education Chat Screen Components
  * 
- * Defines the visual styling for the chat interface including layout,
- * colors, spacing, and responsive design elements. Uses a modern design
- * with proper contrast and accessibility considerations.
+ * Defines the visual styling for the medical education chat interface
+ * including layout, colors, spacing, and responsive design elements.
+ * Uses a professional medical theme with proper contrast and accessibility.
  */
 const styles = StyleSheet.create({
-  // Main container with light background
+  // Main container with medical education theme background
   container: {
-    flex: 1,                        // Take full available height
-    backgroundColor: '#F9FAFB',     // Light gray background for modern look
+    flex: 1,
+    backgroundColor: '#F8FAFC', // Light blue-gray background for medical theme
   },
   
   // Message list styling
   messageList: {
-    flex: 1,                        // Take remaining space above input
-    padding: 16,                    // Padding around message list
+    flex: 1,
+    padding: 16,
   },
   
   // Error message container styling
   errorContainer: {
-    margin: 16,                     // Margin around error container
-    padding: 12,                    // Internal padding for error message
-    backgroundColor: '#FEE2E2',     // Light red background for errors
-    borderRadius: 8,                // Rounded corners
-    alignItems: 'center',           // Center error text horizontally
+    margin: 16,
+    padding: 12,
+    backgroundColor: '#FEE2E2', // Light red background for errors
+    borderRadius: 8,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444', // Red accent border
   },
   
   // Error text styling
   errorText: {
-    color: '#B91C1C',               // Dark red text for error visibility
-    fontWeight: '500',              // Medium font weight for emphasis
+    color: '#B91C1C', // Dark red text for error visibility
+    fontWeight: '500',
+    textAlign: 'center',
   }
 }); 

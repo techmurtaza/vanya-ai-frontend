@@ -1,5 +1,5 @@
 /**
- * Root Layout Component for Ask Rezzy Client
+ * Root Layout Component for Ask Rezzy Medical Education Client
  * 
  * This is the main layout component that sets up the entire application structure,
  * including providers, navigation, session management, and global configurations.
@@ -9,7 +9,7 @@
  * Key Responsibilities:
  * - Font loading and asset management
  * - Provider setup (React Query, Session, Theme)
- * - Session initialization with backend
+ * - Session initialization (client-side for medical education)
  * - Global loading states and error handling
  * - Navigation configuration and routing
  * - Theme and color scheme management
@@ -58,19 +58,29 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 /**
+ * Generate Session ID
+ * 
+ * Creates a unique session ID for the medical education platform.
+ * Since the backend doesn't provide session initialization, we generate
+ * a client-side session ID for WebSocket connection identification.
+ */
+const generateSessionId = (): string => {
+  return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+/**
  * App Initializer Component
  * 
- * This component handles the critical session initialization process that
- * must complete before the main app can function. It communicates with
- * the backend to establish a user session and manages the loading state
- * during this process.
+ * This component handles the session initialization process for the medical
+ * education platform. Since the backend doesn't provide session initialization,
+ * we generate a client-side session ID and test server connectivity.
  * 
  * Initialization Process:
- * 1. Component mounts and triggers session initialization
- * 2. Makes API call to backend /session/init endpoint
- * 3. Stores received session ID in session context
- * 4. Updates loading state to allow app rendering
- * 5. Handles any initialization errors gracefully
+ * 1. Generate a unique session ID
+ * 2. Test server connectivity with health check
+ * 3. Store session ID in context
+ * 4. Update loading state to allow app rendering
+ * 5. Handle any initialization errors gracefully
  * 
  * @param {Object} props - Component props
  * @param {React.ReactNode} props.children - Child components to render after init
@@ -83,33 +93,42 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   /**
    * Session Initialization Effect
    * 
-   * Runs once when the component mounts to establish a session with
-   * the backend server. This session ID is required for all subsequent
-   * API calls including file uploads, chat, and search functionality.
+   * Runs once when the component mounts to establish a session for the
+   * medical education platform. This session ID is required for WebSocket
+   * communication with the medical AI backend.
    */
   useEffect(() => {
     /**
      * Async Session Initialization Function
      * 
-     * Handles the actual API call to initialize a session and manages
-     * the loading state throughout the process. Includes error handling
-     * for network failures or backend issues.
+     * Generates a session ID and tests server connectivity. The medical
+     * education backend doesn't require server-side session initialization,
+     * so we create a client-side session ID for WebSocket identification.
      */
     const initializeSession = async () => {
       try {
-        // Make API call to initialize session
-        const { data } = await apiClient.get('/session/init');
+        // Generate client-side session ID
+        const sessionId = generateSessionId();
+        console.log('Generated session ID:', sessionId);
         
-        // Store session ID if received from backend
-        if (data.sessionId) {
-          setSessionId(data.sessionId);
-        }
+        // Test server connectivity
+        const { data } = await apiClient.get('/health');
+        console.log('Server health check:', data);
+        
+        // Store session ID
+        setSessionId(sessionId);
+        
+        console.log('Medical education session initialized successfully');
       } catch (error) {
-        console.error("Failed to initialize session:", error);
-        // Handle session init failure - app may still function with limited features
-        // In production, you might want to show an error message or retry logic
+        console.error("Failed to initialize medical education session:", error);
+        
+        // Generate session ID anyway - the app can still function
+        // The WebSocket will handle connection errors gracefully
+        const fallbackSessionId = generateSessionId();
+        setSessionId(fallbackSessionId);
+        console.log('Using fallback session ID:', fallbackSessionId);
       } finally {
-        // Always set loading to false, even if initialization failed
+        // Always set loading to false, even if health check failed
         // This prevents the app from being stuck in loading state
         setIsLoading(false);
       }

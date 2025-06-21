@@ -1,21 +1,22 @@
 /**
- * Tab Layout Component for Ask Rezzy Client
+ * Tab Layout Component for Ask Rezzy Medical Education Client
  * 
- * This component defines the main tab-based navigation structure for the application.
- * It provides two primary tabs: Chat and Results, with a real-time connection status
- * indicator in the chat tab header. The layout integrates with the chat system to
- * provide WebSocket connection monitoring and ensures proper context management.
+ * This component defines the main navigation structure for the medical education
+ * application. It provides the main medical education chat interface with a 
+ * real-time connection status indicator in the header. The layout integrates
+ * with the medical education chat system to provide WebSocket connection
+ * monitoring and ensures proper context management.
  * 
  * Key Features:
- * - Two-tab navigation (Chat and Results)
+ * - Single tab navigation for medical education chat
  * - Real-time WebSocket connection status indicator
- * - Chat provider integration for WebSocket functionality
- * - Theme-aware tab styling and icons
+ * - Medical education chat provider integration for WebSocket functionality
+ * - Theme-aware styling with medical education colors
  * - Cross-platform header configuration
  * 
- * The component wraps the tab navigation with a ChatProvider to ensure WebSocket
- * functionality is available throughout the tab navigation tree, particularly
- * for the connection status indicator and chat functionality.
+ * The component wraps the navigation with a ChatProvider to ensure WebSocket
+ * functionality is available throughout the navigation tree, particularly
+ * for the connection status indicator and medical education chat functionality.
  */
 
 import React from 'react';
@@ -31,24 +32,23 @@ import { SocketStatus } from '@/lib/hooks/useChatStream';
 import { ChatProvider } from '@/lib/context/ChatContext';
 
 /**
- * Connection Status Indicator Component
+ * Medical Education Connection Status Indicator Component
  * 
- * This component displays the current WebSocket connection status in the chat
- * tab header. It provides real-time visual feedback about the connection state
- * using color-coded indicators and status text.
+ * This component displays the current WebSocket connection status in the medical
+ * education chat tab header. It provides real-time visual feedback about the
+ * connection state using color-coded indicators and status text specific to
+ * the medical education platform.
  * 
  * Status States:
- * - Connecting: Orange indicator with "Connecting..." text
- * - Open: Green indicator with "Connected" text  
- * - Closed: Red indicator with "Disconnected" text
+ * - Connecting: Orange indicator with "Connecting to Medical AI..." text
+ * - Open: Green indicator with "Medical AI Connected" text  
+ * - Closed: Red indicator with "Medical AI Disconnected" text
  * 
- * The component uses the chat context to access the current socket status
- * and updates automatically when the connection state changes.
- * 
- * @returns {JSX.Element} Connection status indicator with colored dot and text
+ * The component uses the medical education chat context to access the current
+ * socket status and updates automatically when the connection state changes.
  */
 function ConnectionStatus() {
-  // Get current socket status from chat context
+  // Get current socket status from medical education chat context
   const { socketStatus }: { socketStatus: SocketStatus } = useChat();
   
   // Define color mapping for different connection states
@@ -58,11 +58,11 @@ function ConnectionStatus() {
     closed: '#EF4444',      // Red for disconnected state
   }[socketStatus];
 
-  // Define text mapping for different connection states
+  // Define text mapping for different connection states with medical context
   const statusText = {
-    connecting: 'Connecting...',    // Loading state text
-    open: 'Connected',              // Success state text
-    closed: 'Disconnected',        // Error/offline state text
+    connecting: 'Connecting to Medical AI...',    // Loading state text
+    open: 'Medical AI Connected',                 // Success state text
+    closed: 'Medical AI Disconnected',           // Error/offline state text
   }[socketStatus];
 
   return (
@@ -100,12 +100,7 @@ function ConnectionStatus() {
  * Tab Bar Icon Component
  * 
  * A reusable component for rendering FontAwesome icons in the tab bar.
- * Provides consistent styling and sizing for all tab icons.
- * 
- * @param {Object} props - Component props
- * @param {string} props.name - FontAwesome icon name
- * @param {string} props.color - Icon color (provided by tab navigation)
- * @returns {JSX.Element} Styled FontAwesome icon
+ * Provides consistent styling and sizing for medical education tab icons.
  */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -115,20 +110,17 @@ function TabBarIcon(props: {
 }
 
 /**
- * Tab Layout Component
+ * Medical Education Tab Layout Component
  * 
  * The main tab navigation component that defines the structure and configuration
- * for the two primary app tabs. It wraps the entire tab navigation with a
- * ChatProvider to ensure WebSocket functionality is available throughout.
+ * for the medical education application. It wraps the entire tab navigation with
+ * a ChatProvider to ensure WebSocket functionality is available throughout.
  * 
  * Tab Configuration:
- * - Chat Tab (index): Main chat interface with connection status
- * - Results Tab: Document search and results interface
+ * - Medical Education Chat Tab: Main medical education interface with connection status
  * 
  * The component handles theme integration, cross-platform header configuration,
- * and provides the necessary context for real-time features.
- * 
- * @returns {JSX.Element} Complete tab navigation with chat provider
+ * and provides the necessary context for real-time medical education features.
  */
 export default function TabLayout() {
   // Get current color scheme for theme-aware styling
@@ -138,7 +130,7 @@ export default function TabLayout() {
     <ChatProvider>
       <Tabs
         screenOptions={{
-          // Use theme-appropriate tint color for active tabs
+          // Use theme-appropriate tint color for active tabs with medical theme
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           
           // Disable the static render of the header on web to prevent hydration error
@@ -146,22 +138,13 @@ export default function TabLayout() {
           headerShown: useClientOnlyValue(false, true),
         }}>
         
-        {/* Chat Tab - Main conversation interface */}
+        {/* Medical Education Chat Tab - Main medical education interface */}
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Chat',                                    // Tab title
-            tabBarIcon: ({ color }) => <TabBarIcon name="comments" color={color} />, // Chat icon
-            headerRight: () => <ConnectionStatus />,          // Connection status in header
-          }}
-        />
-        
-        {/* Results Tab - Document search interface */}
-        <Tabs.Screen
-          name="results"
-          options={{
-            title: 'Results',                                 // Tab title
-            tabBarIcon: ({ color }) => <TabBarIcon name="list-alt" color={color} />, // List icon
+            title: 'Medical Education',                              // Updated tab title
+            tabBarIcon: ({ color }) => <TabBarIcon name="user-md" color={color} />, // Medical icon
+            headerRight: () => <ConnectionStatus />,                 // Medical AI connection status
           }}
         />
       </Tabs>

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ask-rezzy-client",
-    "slug": "ask-rezzy-client",
+    "name": "Ask Rezzy Medical Education",
+    "slug": "ask-rezzy-medical-education",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "askrezzy",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -16,13 +16,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.askrezzy.medicaleducation"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.askrezzy.medicaleducation"
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +36,13 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/[project-id]"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }

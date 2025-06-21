@@ -1,37 +1,65 @@
 /**
- * API Client Configuration for Ask Rezzy Client
+ * API Configuration for Ask Rezzy Medical Education Client
  * 
- * This file configures the Axios HTTP client used for all API communications
- * with the Ask Rezzy backend server. The client handles REST API calls for
- * session initialization, file uploads, and document search functionality.
+ * This file provides configuration for the medical education platform.
+ * Since the new system uses WebSocket communication exclusively for
+ * real-time medical education interactions, minimal HTTP endpoints are needed.
  * 
  * Key Features:
  * - Environment-based URL configuration
- * - Proper handling of multipart/form-data uploads
- * - Centralized HTTP client for consistent error handling
+ * - WebSocket endpoint configuration
+ * - Medical education backend endpoints
  */
 
-import axios from 'axios';
+// API base URL for medical education backend
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001';
 
-// API base URL - defaults to localhost for development, can be overridden via environment variable
-// This allows for easy deployment to different environments (dev, staging, production)
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001/api';
+// WebSocket URL for medical education real-time communication
+const WS_URL = process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:3001/ws';
 
 /**
- * Configured Axios instance for API communications
+ * API Configuration Object
  * 
- * IMPORTANT: No default Content-Type header is set here to allow proper
- * multipart/form-data handling for file uploads. Setting a global
- * 'application/json' header would break file upload functionality.
- * 
- * The client automatically handles:
- * - JSON requests/responses for regular API calls
- * - Multipart form data for file uploads
- * - Cross-platform compatibility (web, iOS, Android)
+ * Contains all endpoint configurations for the medical education platform.
+ * The system primarily uses WebSocket for real-time medical education
+ * interactions, with minimal HTTP endpoints for health checks.
  */
-export const apiClient = axios.create({
+export const apiConfig = {
+  // Base URLs
   baseURL: API_URL,
-  // headers: { // This was the problematic line that broke file uploads
-  //   'Content-Type': 'application/json', // Removed to allow multipart uploads
-  // },
-}); 
+  wsURL: WS_URL,
+  
+  // HTTP Endpoints (minimal usage)
+  endpoints: {
+    health: '/health',
+  },
+  
+  // WebSocket configuration
+  websocket: {
+    url: WS_URL,
+    protocols: ['medical-education']
+  }
+};
+
+/**
+ * Simple HTTP client for basic requests
+ * 
+ * Since we only need basic HTTP functionality for health checks,
+ * we use fetch API instead of a heavy HTTP library.
+ */
+export const apiClient = {
+  get: async (endpoint: string) => {
+    const response = await fetch(`${API_URL}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    // Handle text responses (like "OK" from health endpoint)
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return { data: await response.json() };
+    } else {
+      return { data: await response.text() };
+    }
+  }
+}; 
