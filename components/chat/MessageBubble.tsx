@@ -1,17 +1,39 @@
 /**
  * Message Bubble Component for Ask Rezzy Medical Education Client
  * 
- * This component renders individual messages in the medical education chat interface.
- * It handles both user messages and structured AI responses including MCQs, flashcards,
- * medical FAQs, greetings, and other educational content types.
+ * Enterprise-grade message rendering component that handles structured medical education
+ * content with intelligent layout management and responsive design patterns.
  * 
- * Key Features:
- * - Support for structured JSON responses from medical education backend
- * - Interactive MCQ component with question answering
- * - Flashcard component with flip animations
- * - Medical FAQ display with follow-up suggestions
- * - Greeting and clarification components with actionable buttons
- * - Professional medical education styling and UX
+ * ARCHITECTURE OVERVIEW:
+ * This component implements a polymorphic message system that dynamically renders
+ * different educational content types based on backend response structure. Each
+ * content type maintains its own state management and user interaction patterns.
+ * 
+ * TECHNICAL IMPLEMENTATION:
+ * - Smart dynamic height system with min/max constraints for optimal content display
+ * - Independent component architecture for MCQs, flashcards, and educational content
+ * - Professional spacing strategy with margin/padding separation for clean UI
+ * - Cross-platform responsive design with mobile-first optimization
+ * - Accessibility-compliant interaction patterns for medical education
+ * 
+ * PERFORMANCE CONSIDERATIONS:
+ * - Lazy rendering of complex interactive components
+ * - Optimized ScrollView nesting for content overflow management
+ * - Efficient state management to prevent unnecessary re-renders
+ * - Memory-conscious handling of large medical content datasets
+ * 
+ * SUPPORTED CONTENT TYPES:
+ * - Interactive MCQ Component: Multi-question quizzes with navigation and explanations
+ * - Flashcard Component: Study cards with flip animations and category organization
+ * - Medical FAQ Component: Comprehensive explanations with follow-up suggestions
+ * - Greeting Component: Welcome interface with medical topic quick actions
+ * - Clarification Component: Disambiguation options for medical topic queries
+ * - Rejection Component: Professional handling of non-medical queries
+ * 
+ * @author Medical Education Platform Team
+ * @version 2.2.0
+ * @since 2.0.0 - Initial medical education transformation
+ * @updated 2024-12-19 - Smart dynamic layout implementation
  */
 
 import React, { useState } from 'react';
@@ -36,7 +58,27 @@ type MessageBubbleProps = {
 };
 
 /**
- * MCQ Component - Interactive Multiple Choice Questions with Navigation
+ * MCQ Component - Interactive Multiple Choice Questions with Smart Navigation
+ * 
+ * COMPONENT ARCHITECTURE:
+ * Implements a single-question focused design with intelligent navigation controls
+ * and dynamic height management for optimal content display across all platforms.
+ * 
+ * KEY FEATURES:
+ * - Smart dynamic height: minHeight 320px, maxHeight 500px (mobile) / 450px (desktop)
+ * - Independent explanation card architecture to prevent option overlap
+ * - Horizontal scrolling for long answer options to prevent text cutoff
+ * - Professional navigation with disabled state visual feedback
+ * - Responsive design optimized for medical education content
+ * 
+ * TECHNICAL IMPLEMENTATION:
+ * - State management for answer selection and explanation visibility
+ * - Navigation bounds checking with visual feedback
+ * - Separate explanation card rendering to maintain clean UI separation
+ * - Cross-platform scrolling optimization for content overflow
+ * 
+ * @param {MCQResponse} data - Structured MCQ data from medical education backend
+ * @returns {JSX.Element} Interactive MCQ component with navigation
  */
 const MCQComponent = ({ data }: { data: MCQResponse }) => {
   const [selectedAnswers, setSelectedAnswers] = useState<{[key: number]: string}>({});
@@ -157,7 +199,27 @@ const MCQComponent = ({ data }: { data: MCQResponse }) => {
 };
 
 /**
- * Flashcard Component - Interactive Study Cards with Navigation
+ * Flashcard Component - Interactive Study Cards with Smart Navigation
+ * 
+ * COMPONENT ARCHITECTURE:
+ * Single-card focused design with flip animations and intelligent height management
+ * for optimal medical terminology display across all device types.
+ * 
+ * KEY FEATURES:
+ * - Smart dynamic height: minHeight 220px, maxHeight 320px (mobile) / 280px (desktop)
+ * - Flip animation state management with Set-based tracking for performance
+ * - Professional navigation controls with orange medical education theme
+ * - Responsive card dimensions with scrollable content for long medical terms
+ * - Category-based organization for medical education content structure
+ * 
+ * TECHNICAL IMPLEMENTATION:
+ * - Set-based flipped card tracking for efficient state management
+ * - Touch-optimized flip interactions with visual feedback
+ * - Navigation bounds checking with disabled state styling
+ * - Cross-platform scroll optimization for medical terminology display
+ * 
+ * @param {FlashcardResponse} data - Structured flashcard data from medical education backend
+ * @returns {JSX.Element} Interactive flashcard component with navigation and flip animations
  */
 const FlashcardComponent = ({ data }: { data: FlashcardResponse }) => {
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
@@ -451,6 +513,32 @@ const FLASHCARD_WIDTH = isMobile ? screenWidth - 80 : isTablet ? 300 : 260;
 
 /**
  * Comprehensive StyleSheet for Medical Education Components
+ * 
+ * DESIGN SYSTEM ARCHITECTURE:
+ * Professional medical education styling with intelligent responsive design patterns
+ * and optimized spacing strategies for cross-platform consistency.
+ * 
+ * KEY DESIGN PRINCIPLES:
+ * - Smart Dynamic Heights: Hybrid min/max constraints for optimal content display
+ * - Professional Spacing: Margin/padding separation strategy for clean UI
+ * - Medical Theme Colors: Healthcare-appropriate color palette with accessibility
+ * - Cross-Platform Optimization: Responsive design for mobile, tablet, and desktop
+ * - Content Accessibility: Scrollable overflow handling for long medical content
+ * 
+ * LAYOUT STRATEGY:
+ * - MCQ Cards: 320-500px height range with independent explanation cards
+ * - Flashcard Cards: 220-320px height range with flip animation support
+ * - Component Separation: Professional margin/padding for clean visual hierarchy
+ * - Responsive Breakpoints: Mobile-first design with tablet and desktop optimization
+ * 
+ * PERFORMANCE CONSIDERATIONS:
+ * - Platform-specific shadow implementations for optimal rendering
+ * - Efficient color scheme management with theme-aware styling
+ * - Optimized scroll view configurations for nested content
+ * - Memory-conscious style object creation and reuse
+ * 
+ * @version 2.2.0 - Smart dynamic layout implementation
+ * @updated 2024-12-19 - Professional spacing and height constraint optimization
  */
 const styles = StyleSheet.create({
   // Main message container

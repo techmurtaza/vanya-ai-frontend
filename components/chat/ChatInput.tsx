@@ -1,17 +1,37 @@
 /**
  * Chat Input Component for Ask Rezzy Medical Education Client
  * 
- * Simplified chat input component focused on medical education conversations.
- * Provides a clean, modern interface for interacting with the medical AI assistant
- * without file upload functionality, as the new system focuses on direct
- * medical knowledge conversations, MCQs, and flashcards.
+ * ENTERPRISE-GRADE INPUT INTERFACE:
+ * Professional medical education input component with intelligent keyboard handling
+ * and optimized user experience patterns for healthcare learning environments.
  * 
- * Key Features:
- * - Multi-line text input with platform-specific keyboard shortcuts
- * - Medical-themed design with professional styling
- * - Enter key support for web (Enter to send, Shift+Enter for new line)
- * - Loading states during AI response generation
- * - Responsive design for cross-platform compatibility
+ * DESIGN PHILOSOPHY:
+ * Streamlined medical education interface focusing on direct AI conversation
+ * without document upload complexity. Emphasizes accessibility, professional
+ * medical aesthetics, and cross-platform consistency for healthcare education.
+ * 
+ * TECHNICAL FEATURES:
+ * - Platform-specific keyboard shortcuts with intelligent event handling
+ * - Medical-themed visual design with healthcare-appropriate color schemes
+ * - Responsive multi-line input with character limits for optimal performance
+ * - Loading state management with visual feedback during AI processing
+ * - Cross-platform compatibility with consistent behavior across devices
+ * 
+ * KEYBOARD INTERACTION PATTERNS:
+ * - Web Platform: Enter to send, Shift+Enter for new line
+ * - Mobile Platforms: Native keyboard handling with medical education optimization
+ * - Accessibility: Full keyboard navigation support for healthcare professionals
+ * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Efficient event handling with minimal re-render triggers
+ * - Optimized placeholder text for platform-specific user guidance
+ * - Memory-conscious state management for input text processing
+ * - Network-aware loading states to prevent duplicate submissions
+ * 
+ * @author Medical Education Platform Team
+ * @version 2.2.0
+ * @since 2.0.0 - Initial medical education transformation
+ * @updated 2024-12-19 - Enhanced keyboard handling and accessibility
  */
 
 import React from 'react';

@@ -1,19 +1,43 @@
 /**
  * WebSocket Medical Education Hook for Ask Rezzy Client
  * 
- * This custom hook manages real-time communication with the Ask Rezzy medical
- * education backend using WebSocket technology. It handles structured JSON
- * responses for medical conversations, MCQs, flashcards, and educational content.
+ * ENTERPRISE-GRADE WEBSOCKET MANAGEMENT:
+ * Custom React hook implementing robust real-time communication patterns with
+ * the medical education backend. Provides comprehensive state management,
+ * error recovery, and structured data handling for educational content delivery.
  * 
- * Key Features:
- * - Real-time WebSocket connection with automatic reconnection
- * - Structured JSON response handling for medical education content
- * - Connection status monitoring and error handling
- * - Message history management with proper state updates
- * - Support for greeting, MCQ, flashcard, and medical FAQ responses
+ * ARCHITECTURE OVERVIEW:
+ * - Session-based WebSocket connection management with automatic lifecycle handling
+ * - Polymorphic message processing system for structured medical education responses
+ * - Comprehensive error handling with graceful degradation patterns
+ * - Performance-optimized state management with minimal re-render triggers
+ * - Type-safe interface definitions for all medical education content types
  * 
- * The hook integrates with the session system to ensure authenticated communication
- * and provides a complete medical education chat experience.
+ * TECHNICAL IMPLEMENTATION:
+ * - WebSocket connection pooling with session-based identification
+ * - JSON message protocol with structured response type discrimination
+ * - Real-time connection status monitoring with UI feedback integration
+ * - Memory-efficient message history management with proper cleanup
+ * - Cross-platform WebSocket compatibility with fallback mechanisms
+ * 
+ * SUPPORTED MEDICAL EDUCATION CONTENT:
+ * - Interactive MCQ Systems: Multi-question quizzes with explanations
+ * - Flashcard Learning: Study cards with categorized medical terminology
+ * - Medical FAQ Responses: Comprehensive explanations with follow-up suggestions
+ * - Greeting Systems: Welcome interfaces with topic suggestions
+ * - Clarification Handlers: Smart disambiguation for medical queries
+ * - Rejection Protocols: Professional non-medical query handling
+ * 
+ * PERFORMANCE CHARACTERISTICS:
+ * - Optimized for low-latency medical education interactions
+ * - Efficient memory usage with proper message lifecycle management
+ * - Minimal CPU overhead with smart state update batching
+ * - Network-resilient with automatic reconnection and error recovery
+ * 
+ * @author Medical Education Platform Team
+ * @version 2.2.0
+ * @since 2.0.0 - Initial WebSocket medical education implementation
+ * @updated 2024-12-19 - Enhanced error handling and connection management
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
