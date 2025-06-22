@@ -15,7 +15,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { 
   ChatMessage, 
@@ -36,11 +36,28 @@ type MessageBubbleProps = {
 };
 
 /**
- * MCQ Component - Interactive Multiple Choice Questions
+ * MCQ Component - Interactive Multiple Choice Questions with Navigation
  */
 const MCQComponent = ({ data }: { data: MCQResponse }) => {
   const [selectedAnswers, setSelectedAnswers] = useState<{[key: number]: string}>({});
   const [showAnswers, setShowAnswers] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  const currentQuestion = data.questions[currentQuestionIndex];
+  const canGoNext = currentQuestionIndex < data.questions.length - 1;
+  const canGoPrev = currentQuestionIndex > 0;
+
+  const goToNext = () => {
+    if (canGoNext) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
+  const goToPrev = () => {
+    if (canGoPrev) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
 
   return (
     <View style={styles.mcqContainer}>
@@ -49,45 +66,92 @@ const MCQComponent = ({ data }: { data: MCQResponse }) => {
         <Text style={styles.headerText}>📚 {data.topic.toUpperCase()} MCQs</Text>
       </View>
       
-      <ScrollView style={styles.questionsContainer} nestedScrollEnabled={true}>
-        {data.questions.map((question, index) => (
-          <View key={question.id} style={styles.questionCard}>
-            <Text style={styles.questionNumber}>Question {index + 1}</Text>
-            <Text style={styles.questionText}>{question.question}</Text>
+      {/* Single Question Card */}
+      <View style={styles.questionCardFixed}>
+        {/* Question Header with Navigation */}
+        <View style={styles.questionHeader}>
+          <Text style={styles.questionNumber}>
+            Question {currentQuestionIndex + 1} of {data.questions.length}
+          </Text>
+          
+          {/* Navigation Buttons */}
+          <View style={styles.navigationButtons}>
+            <TouchableOpacity
+              style={[styles.navButton, !canGoPrev && styles.navButtonDisabled]}
+              onPress={goToPrev}
+              disabled={!canGoPrev}
+            >
+              <FontAwesome name="chevron-left" size={14} color={canGoPrev ? "#DC2626" : "#D1D5DB"} />
+            </TouchableOpacity>
             
-            <View style={styles.optionsContainer}>
-              {Object.entries(question.options).map(([key, value]) => (
-                <TouchableOpacity
-                  key={key}
-                  style={[
-                    styles.option,
-                    selectedAnswers[question.id] === key && styles.selectedOption,
-                    showAnswers && question.correctAnswer === key && styles.correctOption,
-                    showAnswers && selectedAnswers[question.id] === key && question.correctAnswer !== key && styles.incorrectOption
-                  ]}
-                  onPress={() => setSelectedAnswers(prev => ({...prev, [question.id]: key}))}
-                  disabled={showAnswers}
-                >
-                  <Text style={[
-                    styles.optionText,
-                    showAnswers && question.correctAnswer === key && styles.correctOptionText
-                  ]}>
-                    {key}) {value}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            
-            {showAnswers && (
-              <View style={styles.explanationContainer}>
-                <Text style={styles.explanationLabel}>✅ Explanation:</Text>
-                <Text style={styles.explanationText}>{question.explanation}</Text>
-              </View>
-            )}
+            <TouchableOpacity
+              style={[styles.navButton, !canGoNext && styles.navButtonDisabled]}
+              onPress={goToNext}
+              disabled={!canGoNext}
+            >
+              <FontAwesome name="chevron-right" size={14} color={canGoNext ? "#DC2626" : "#D1D5DB"} />
+            </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        </View>
+        
+        {/* Scrollable Question Text */}
+        <ScrollView style={styles.questionTextContainer} nestedScrollEnabled={true}>
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+        </ScrollView>
+        
+        {/* Fixed Options Container */}
+        <View style={styles.optionsContainerFixed}>
+          {Object.entries(currentQuestion.options).map(([key, value]) => (
+            <TouchableOpacity
+              key={key}
+              style={[
+                styles.optionFixed,
+                selectedAnswers[currentQuestion.id] === key && styles.selectedOption,
+                showAnswers && currentQuestion.correctAnswer === key && styles.correctOption,
+                showAnswers && selectedAnswers[currentQuestion.id] === key && currentQuestion.correctAnswer !== key && styles.incorrectOption
+              ]}
+              onPress={() => setSelectedAnswers(prev => ({...prev, [currentQuestion.id]: key}))}
+              disabled={showAnswers}
+            >
+              <Text style={styles.optionLetter}>{key})</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.optionTextScroll}>
+                <Text style={[
+                  styles.optionTextFixed,
+                  showAnswers && currentQuestion.correctAnswer === key && styles.correctOptionText
+                ]}>
+                  {value}
+                </Text>
+              </ScrollView>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Explanation (if shown) */}
+        {showAnswers && (
+          <ScrollView style={styles.explanationScroll} nestedScrollEnabled={true}>
+            <View style={styles.explanationContainer}>
+              <Text style={styles.explanationLabel}>✅ Explanation:</Text>
+              <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+            </View>
+          </ScrollView>
+        )}
+      </View>
       
+      {/* Progress Dots */}
+      <View style={styles.paginationContainer}>
+        {data.questions.map((_, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentQuestionIndex && styles.paginationDotActive
+            ]}
+            onPress={() => setCurrentQuestionIndex(index)}
+          />
+        ))}
+      </View>
+      
+      {/* Check Answers Button */}
       <TouchableOpacity 
         style={styles.checkButton}
         onPress={() => setShowAnswers(!showAnswers)}
@@ -101,10 +165,15 @@ const MCQComponent = ({ data }: { data: MCQResponse }) => {
 };
 
 /**
- * Flashcard Component - Interactive Study Cards
+ * Flashcard Component - Interactive Study Cards with Navigation
  */
 const FlashcardComponent = ({ data }: { data: FlashcardResponse }) => {
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+
+  const currentCard = data.cards[currentCardIndex];
+  const canGoNext = currentCardIndex < data.cards.length - 1;
+  const canGoPrev = currentCardIndex > 0;
 
   const toggleCard = (id: number) => {
     setFlippedCards(prev => {
@@ -118,6 +187,18 @@ const FlashcardComponent = ({ data }: { data: FlashcardResponse }) => {
     });
   };
 
+  const goToNext = () => {
+    if (canGoNext) {
+      setCurrentCardIndex(prev => prev + 1);
+    }
+  };
+
+  const goToPrev = () => {
+    if (canGoPrev) {
+      setCurrentCardIndex(prev => prev - 1);
+    }
+  };
+
   return (
     <View style={styles.flashcardContainer}>
       <View style={styles.headerContainer}>
@@ -125,31 +206,74 @@ const FlashcardComponent = ({ data }: { data: FlashcardResponse }) => {
         <Text style={styles.headerText}>🎴 {data.topic.toUpperCase()} Flashcards</Text>
       </View>
       
-      <ScrollView style={styles.cardsContainer} nestedScrollEnabled={true}>
-        {data.cards.map((card) => (
+      {/* Single Flashcard */}
+      <View style={styles.flashcardFixed}>
+        {/* Card Header with Navigation */}
+        <View style={styles.cardHeader}>
+          <Text style={styles.cardCounter}>
+            Card {currentCardIndex + 1} of {data.cards.length}
+          </Text>
+          
+          {/* Navigation Buttons */}
+          <View style={styles.navigationButtons}>
+            <TouchableOpacity
+              style={[styles.navButton, !canGoPrev && styles.navButtonDisabled]}
+              onPress={goToPrev}
+              disabled={!canGoPrev}
+            >
+              <FontAwesome name="chevron-left" size={14} color={canGoPrev ? "#F59E0B" : "#D1D5DB"} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.navButton, !canGoNext && styles.navButtonDisabled]}
+              onPress={goToNext}
+              disabled={!canGoNext}
+            >
+              <FontAwesome name="chevron-right" size={14} color={canGoNext ? "#F59E0B" : "#D1D5DB"} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Flashcard Content */}
+        <TouchableOpacity
+          style={styles.flashcardContent}
+          onPress={() => toggleCard(currentCard.id)}
+        >
+          <View style={styles.cardContent}>
+            {!flippedCards.has(currentCard.id) ? (
+              <>
+                <Text style={styles.cardLabel}>FRONT</Text>
+                <ScrollView style={styles.cardTextScroll} nestedScrollEnabled={true}>
+                  <Text style={styles.cardText}>{currentCard.front}</Text>
+                </ScrollView>
+              </>
+            ) : (
+              <>
+                <Text style={styles.cardLabel}>BACK</Text>
+                <ScrollView style={styles.cardTextScroll} nestedScrollEnabled={true}>
+                  <Text style={styles.cardText}>{currentCard.back}</Text>
+                </ScrollView>
+                <Text style={styles.categoryText}>Category: {currentCard.category}</Text>
+              </>
+            )}
+          </View>
+          <Text style={styles.tapHint}>Tap to flip</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* Progress Dots */}
+      <View style={styles.paginationContainer}>
+        {data.cards.map((_, index) => (
           <TouchableOpacity
-            key={card.id}
-            style={styles.flashcard}
-            onPress={() => toggleCard(card.id)}
-          >
-            <View style={styles.cardContent}>
-              {!flippedCards.has(card.id) ? (
-                <>
-                  <Text style={styles.cardLabel}>FRONT</Text>
-                  <Text style={styles.cardText}>{card.front}</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.cardLabel}>BACK</Text>
-                  <Text style={styles.cardText}>{card.back}</Text>
-                  <Text style={styles.categoryText}>Category: {card.category}</Text>
-                </>
-              )}
-            </View>
-            <Text style={styles.tapHint}>Tap to flip</Text>
-          </TouchableOpacity>
+            key={index}
+            style={[
+              styles.paginationDot,
+              index === currentCardIndex && styles.paginationDotActive
+            ]}
+            onPress={() => setCurrentCardIndex(index)}
+          />
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -171,7 +295,12 @@ const GreetingComponent = ({ data, onSendMessage }: {
       <Text style={styles.greetingMessage}>{data.message}</Text>
       
       <Text style={styles.suggestionsLabel}>Try these topics:</Text>
-      <View style={styles.suggestionsContainer}>
+      <ScrollView 
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.suggestionsScrollContainer}
+        contentContainerStyle={styles.suggestionsScrollContent}
+      >
         {data.suggestions.map((suggestion, index) => (
           <TouchableOpacity
             key={index}
@@ -181,7 +310,7 @@ const GreetingComponent = ({ data, onSendMessage }: {
             <Text style={styles.suggestionText}>{suggestion}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -268,7 +397,12 @@ const RejectionComponent = ({ data, onSendMessage }: {
       <Text style={styles.rejectionMessage}>{data.message}</Text>
       
       <Text style={styles.suggestionsLabel}>Try asking about:</Text>
-      <View style={styles.suggestionsContainer}>
+      <ScrollView 
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.suggestionsScrollContainer}
+        contentContainerStyle={styles.suggestionsScrollContent}
+      >
         {data.suggestions.map((suggestion, index) => (
           <TouchableOpacity
             key={index}
@@ -278,7 +412,7 @@ const RejectionComponent = ({ data, onSendMessage }: {
             <Text style={styles.rejectionSuggestionText}>{suggestion}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -323,6 +457,17 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onSendMessage })
     </View>
   );
 };
+
+/**
+ * Responsive Dimensions for Medical Education Components
+ */
+const { width: screenWidth } = Dimensions.get('window');
+const isTablet = screenWidth > 768;
+const isMobile = screenWidth <= 480;
+
+// Responsive card widths
+const MCQ_CARD_WIDTH = isMobile ? screenWidth - 60 : isTablet ? 350 : 280;
+const FLASHCARD_WIDTH = isMobile ? screenWidth - 80 : isTablet ? 300 : 260;
 
 /**
  * Comprehensive StyleSheet for Medical Education Components
@@ -499,6 +644,124 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   
+  // Fixed MCQ Styles with Navigation
+  questionCardFixed: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    height: isMobile ? 400 : 350,
+    width: '100%',
+  },
+  
+  questionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  
+  navigationButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  
+  navButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  navButtonDisabled: {
+    backgroundColor: '#F9FAFB',
+    borderColor: '#F3F4F6',
+  },
+  
+  questionTextContainer: {
+    maxHeight: 80,
+    marginBottom: 12,
+  },
+  
+  optionsContainerFixed: {
+    flex: 1,
+    gap: 8,
+  },
+  
+  optionFixed: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,
+  },
+  
+  optionLetter: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#374151',
+    marginRight: 8,
+    minWidth: 20,
+  },
+  
+  optionTextScroll: {
+    flex: 1,
+  },
+  
+  optionTextFixed: {
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 18,
+  },
+  
+  explanationScroll: {
+    maxHeight: 60,
+    marginTop: 8,
+  },
+  
+  // Pagination Dots (shared by MCQ and Flashcards)
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 12,
+    gap: 6,
+  },
+  
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#D1D5DB',
+  },
+  
+  paginationDotActive: {
+    backgroundColor: '#DC2626',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  
+  // Swipe Hint (shared)
+  swipeHint: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  
   // Flashcard Component Styles
   flashcardContainer: {
     backgroundColor: '#FEFEFE',
@@ -573,6 +836,58 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   
+  // Fixed Flashcard Styles with Navigation
+  flashcardFixed: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    height: isMobile ? 280 : 240,
+    width: '100%',
+    // Use boxShadow for web compatibility
+    ...Platform.select({
+      web: {
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+    }),
+  },
+  
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  
+  flashcardContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  cardTextScroll: {
+    flex: 1,
+    maxHeight: 120,
+    width: '100%',
+  },
+  
+  cardCounter: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '500',
+  },
+  
   // Greeting Component Styles
   greetingContainer: {
     backgroundColor: '#F0FDF4',
@@ -603,11 +918,23 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   
+  // Horizontal Suggestions Scroll
+  suggestionsScrollContainer: {
+    maxHeight: 40,
+  },
+  
+  suggestionsScrollContent: {
+    paddingHorizontal: 4,
+    gap: 8,
+    alignItems: 'center',
+  },
+  
   suggestionButton: {
     backgroundColor: '#10B981',
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
+    marginHorizontal: 2,
   },
   
   suggestionText: {
@@ -719,11 +1046,10 @@ const styles = StyleSheet.create({
   
   rejectionSuggestion: {
     backgroundColor: '#EF4444',
-    borderRadius: 6,
-    paddingHorizontal: 10,
+    borderRadius: 16,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    marginBottom: 4,
-    alignSelf: 'flex-start',
+    marginHorizontal: 2,
   },
   
   rejectionSuggestionText: {
