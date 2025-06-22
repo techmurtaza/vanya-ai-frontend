@@ -126,30 +126,22 @@ const MCQComponent = ({ data }: { data: MCQResponse }) => {
           ))}
         </View>
         
-        {/* Explanation (if shown) */}
-        {showAnswers && (
-          <ScrollView style={styles.explanationScroll} nestedScrollEnabled={true}>
-            <View style={styles.explanationContainer}>
-              <Text style={styles.explanationLabel}>✅ Explanation:</Text>
-              <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
-            </View>
-          </ScrollView>
-        )}
       </View>
       
-      {/* Progress Dots */}
-      <View style={styles.paginationContainer}>
-        {data.questions.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.paginationDot,
-              index === currentQuestionIndex && styles.paginationDotActive
-            ]}
-            onPress={() => setCurrentQuestionIndex(index)}
-          />
-        ))}
-      </View>
+      {/* Separate Explanation Card (appears below question card) */}
+      {showAnswers && (
+        <View style={styles.explanationCard}>
+          <View style={styles.explanationHeader}>
+            <FontAwesome name="lightbulb-o" size={16} color="#059669" />
+            <Text style={styles.explanationHeaderText}>Explanation for Question {currentQuestionIndex + 1}</Text>
+          </View>
+          <ScrollView style={styles.explanationContentScroll} nestedScrollEnabled={true}>
+            <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+          </ScrollView>
+        </View>
+      )}
+      
+
       
       {/* Check Answers Button */}
       <TouchableOpacity 
@@ -157,7 +149,7 @@ const MCQComponent = ({ data }: { data: MCQResponse }) => {
         onPress={() => setShowAnswers(!showAnswers)}
       >
         <Text style={styles.checkButtonText}>
-          {showAnswers ? 'Hide Answers' : 'Check Answers'}
+          {showAnswers ? 'Hide Explanation' : 'Check Answers'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -261,19 +253,7 @@ const FlashcardComponent = ({ data }: { data: FlashcardResponse }) => {
         </TouchableOpacity>
       </View>
       
-      {/* Progress Dots */}
-      <View style={styles.paginationContainer}>
-        {data.cards.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.paginationDot,
-              index === currentCardIndex && styles.paginationDotActive
-            ]}
-            onPress={() => setCurrentCardIndex(index)}
-          />
-        ))}
-      </View>
+
     </View>
   );
 };
@@ -644,15 +624,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   
-  // Fixed MCQ Styles with Navigation
+  // Smart Dynamic MCQ Styles with Constraints
   questionCardFixed: {
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     padding: 16,
+    paddingBottom: 20, // Extra bottom padding for explanation separation
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    height: isMobile ? 400 : 350,
+    minHeight: 320, // Minimum height for consistency
+    maxHeight: isMobile ? 500 : 450, // Maximum to prevent screen overflow
     width: '100%',
+    marginBottom: 8, // Bottom margin for explanation card separation
   },
   
   questionHeader: {
@@ -730,28 +713,41 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   
-  // Pagination Dots (shared by MCQ and Flashcards)
-  paginationContainer: {
+  // Separate Explanation Card Styles
+  explanationCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 8, // Reduced since question card has bottom margin
+    marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#10B981',
+    borderWidth: 1,
+    borderColor: '#D1FAE5',
+  },
+  
+  explanationHeader: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 12,
-    gap: 6,
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#D1FAE5',
   },
   
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D1D5DB',
+  explanationHeaderText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#065F46',
+    marginLeft: 6,
   },
   
-  paginationDotActive: {
-    backgroundColor: '#DC2626',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  explanationContentScroll: {
+    maxHeight: 120,
+    marginTop: 4,
   },
+  
+
   
   // Swipe Hint (shared)
   swipeHint: {
@@ -836,15 +832,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   
-  // Fixed Flashcard Styles with Navigation
+  // Smart Dynamic Flashcard Styles with Constraints
   flashcardFixed: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
+    paddingBottom: 20, // Extra bottom padding
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    height: isMobile ? 280 : 240,
+    minHeight: 220, // Minimum height for consistency
+    maxHeight: isMobile ? 320 : 280, // Maximum to prevent overflow
     width: '100%',
+    marginBottom: 8, // Bottom margin for separation
     // Use boxShadow for web compatibility
     ...Platform.select({
       web: {
